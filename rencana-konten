@@ -2,9 +2,9 @@ Rencana konten
 
 -Javascript
 * ES6
-* Framework JavaScript
-  - Vue
+* Framework
+  ^ Angular
+  ^ React
 - Golang
 - Framework PHP
-  - Coba
-- fundamental data dasar
+  ^ Laravel
