@@ -1,0 +1,876 @@
+Studi Kasus
+
+Pada suatu instansi khursus membutuhkan sebuah aplikasi penilaian dimana semua nilai siswa dapat
+tersimpan dengan rapih dan terkomputerisasi, oleh sebab itu kita harus melakukan Analisa kebutuhan
+apa saja yang mendukung untuk aplikasi tersebut.
+Hasil Observasi berupa
+1. Aplikasi memiliki akses untuk input data siswa, guru dan nilai
+2. Aplikasi dapat memberikan laporan data nilai dan remedial siswa
+Dari hasil observasi maka kita dapat menentukan table relasi yang di butuhkan berupa :
+
+
+Langka Kerja
+1. Buat database dengan nama SISWA
+2. Buat 3 tabel dengan propertis seperti gambar relasi tersebut
+3. Buat halaman dimana terdapat beberapa halaman seperti berikut ini
+a. Halaman Utama
+Terdapat 3 menu di dalamnya
+File
+➔ Exit
+Input
+➔ Siswa
+➔ Nilai
+➔ Guru
+Report
+➔ Nilai
+➔ Remedial
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+PEMBUATAN APLIKASI
+1. Koneksi ke database
+Config.java
+Berikut ini adalah script untuk koneksi ke dalam database.
+Buat class java dengan nama Config.java
+
+//Library yang dibutuhkan untuk koneksi database
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+//End
+
+
+//Script koneksi Config.java (Java Class)
+private static Connection mysqlconfig;
+public static Connection configDB()throws SQLException{
+try{
+String url = "jdbc:mysql//localhost:3306/siswa";
+string user = "root";
+String pass = "";
+DriverManager.registerDriver(new com.mysql.jdbc.Driver());
+mysqlconfig = DriverManager.getConnection(url, user, pass);
+} catch (Exception e) {
+System.err.println("Koneksi Gagal" + e.getMessage());
+}
+return mysqlconfig;
+}
+public static void main(String []args){
+try{
+Connection c = Config.configDB();
+System.out.println(String.format
+("Koneksi ke database %s" + "Berhasil", c.getCatalog()));
+} catch (SQLExeption e) {
+	System.out.println(e);
+}
+}
+//End Script Koneksi
+
+
+//Set lokasi saat menu di klik
+
+siswa red = new siswa();
+red.setLocationRelativeTo(this);
+red.setVisible(true);
+//End
+
+
+//Library yang dibutuhkan program siswa
+java.sql.Connection;
+java.sql.DriverManager;
+java.sql.SQLException;
+javax.swing.JOptionPane;
+javax.swing.table.DefaultTableModel;
+//End
+
+
+
+//Script untuk button tambah
+
+try{
+String sql = "INSERT INTO tb_siswa VALUES ('"+txtnis.getText()+"',
+'"+txtnama.getText()+"',
+'"+kelas.getSelectedItem()+"',
+'"+jurusan.getSelectedItem()+
+"')";
+java.sql.Connection conn = (Connection)Config.configDB();
+java.sql.PreparedStatement pst = conn.prepareStatement(sql);
+pst.execute();
+JOptionPane.showMessageDialog(null, "Penyimpanan Data Berhasil!");
+} catch (Exception e) {
+	JOptionPane.showMessageDialog(this, e.getMessage());
+}
+load_table();
+kosong();
+//End
+
+
+//Script Untuk button edit
+
+try{
+String sql = "UPDATE tb_siswa SET nama = '"+txtnama.getText()+"',
+jurusan = '"+jurusan.getSelectedItem()+"',
+kelas = '"+kelas.getSelectedItem()+"'
+WHERE nis = '"+txtnis.getText()+"'
+";
+java.sql.Connection conn = (Connection)Config.configDB();
+java.sql.PreparedStatement pst = conn.prepareStatement(sql);
+pst.execute();
+JOptionPane.showMessageDialog(null, "Data Berhasil Diedit");
+} catch (Exception e) {
+JOptionPane.showMessageDialog(null, "Perubahan Data Gagal" + e.getMessage());
+}
+load_table();
+kosong();
+//End
+
+//Script untuk menampilkan data dari database ke dalam
+Jtable
+
+int baris = datasiswa.rowAtPoint(evt.getPoint());
+String nis = datasiswa.getValueAt(baris, 1).toString();
+txtnis.setText(nis);
+String nama = datasiswa.getValueAt(baris , 2)toString();
+txtnama.setText(nama);
+String kl = datasiswa.getValueAt(baris, 3)toString();
+kelas.setSelectedItem(kl);
+String jr = datasiswa.getValueAt(baris, 4)toString();
+jurusan.setSelectedItem(jr);
+//End
+
+
+//Script untuk button hapus
+
+try{
+String sql = "DELETE FROM tb_siswa WHERE nis = '"+txtnis.getText()+"'";
+java.sql.Connection conn = (Connection)Config.configDB();
+java.sql.PreparedStatement pst = conn.prepareStatement(sql);
+pst.execute();
+JOptionPane.showMessageDialog(this, "Data Berhasil Dihapus");
+} catch (Exception e) {
+JOptionPane.showMessageDialog(this, e.getMessage());
+}
+load_table();
+kosong();
+//End
+
+//Script untuk button kosongkan
+
+txtnis.setText(null);
+txtnama.setText(null);
+kelas.setSelectedItem(this);
+jurusan.setSelectedItem(this);
+//End
+
+//Setelah itu buat class baru untuk proses pemanggilan data ke table dan pemilihan data dari table
+(ditaruh dipaling bawah)
+
+//method kosong
+private void kosong(){
+	txtnama.setText(null);
+	txtnis.setText(null);
+	jurusan.setSelectedItem(this);
+	kelas.setSelectedItem(this);
+}
+//End
+
+//membuat tampilan model table
+private void load_table() {
+
+	DefaultTableModel model = new DefaultTableModel();
+	datasiswa.setModel(model);
+	model.addColumn("NO");
+	model.addColumn("NIS");
+	model.addColumn("NAMA");
+	model.addColumn("KELAS");
+	model.addColumn("JURUSAN");
+//End
+
+//menampilkan data database ke dalam table
+
+try{
+int no = 1;
+String sql = "SELECT * FROM tb_siswa";
+java.sql.Connnection conn = (Connection)Config.configDB();
+java.sql.Statement stm = conn.createStatement();
+java.sql.ResultSet res = stm.executeQuery(sql);
+while(res.next()){
+model.addRow(new object[] {no++, res.getString(1), res.getString(2), res.getString(3), res.getString(4)})
+}
+datasiswa.setModel(model);
+} catch (SQLException e)
+}
+//End
+
+
+//laporan
+
+//Library yang dibutuhkan
+import java.awt.*;
+import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+//End
+
+
+//tambahkan variable konstan ini pada class utama Jframe(diatas)
+DefaultTableModel tabModel, tabModell;
+ResultSet Rs = null, Rsl = null;
+
+initComponents();
+tampilData();
+//End
+
+
+//script key pencarian
+String key = txtcari.getText();
+System.out.println(key);
+
+if(key!= ""){
+	cariData();
+}else{
+	tampilData();
+}
+//End
+
+//Setelah itu untuk menampilkan data pada Jtabel kita harus membuat class
+baru dengan nama TampilData() sebagai berikut
+private void tampilData() {
+	try{
+	Object[] judul_kolom = {"NIS", "Nama", "Mapel", "Nilai"};
+	tabModel = new DefaultTableModel (null, judul_kolom);
+	tblnilai.setModel(tabModel);
+
+	Connection conn = (Connection)Config.configDB();
+	Statement stt = conn.createStatement();
+	tabModel.getDataVector().removeAllElements();
+
+
+	Rs = stt.executeQuery("SELECT * FROM tb_siswa JOIN tb_nilai ON tb_siswa.nis = tb_nilai.nis");
+	while(Rs.next()){
+	Object[] data = {
+		Rs.getString("nis"),
+		Rs.getString("nama"),
+		Rs.getString("mapel"),
+		Rs.getString("nilai"),
+	};
+	tabModel.addRow(data);
+}
+} catch (Exception ex) {
+System.err.println(ex.getMessage());
+}
+}
+//End
+
+//Judul_kolom adalah title untuk Jtabel dan field dalam Rs.getString merupakan
+field hasil query yang telah di jalankan untuk tampilan Jtabel.
+Setelah itu kita harus membuat class untuk proses pencarian data dengan script
+sebagai berikut ini :
+private void cariData(String key) {
+	try{
+	Object[] judul_kolom = {"NIS", "Nama", "Mapel", "Nilai"};
+	tabModell = new DefaultTableModel (null, judul_kolom);
+	tblnilai.setModel(tabModell);
+
+	Connection conn = (Connection)Config.configDB();
+	Statement stt = conn.createStatement();
+	tabModell.getDataVector().removeAllElements();
+
+
+	Rsl = stt.executeQuery("SELECT * FROM tb_siswa JOIN tb_nilai ON tb_siswa.nis = tb_nilai.nis WHERE nama LIKE '%"+key+"%'");
+	while(Rsl.next()){
+	Object[] data = {
+		Rsl.getString("nis"),
+		Rsl.getString("nama"),
+		Rsl.getString("mapel"),
+		Rsl.getString("nilai"),
+	};
+	tabModell.addRow(data);
+}
+} catch (Exception ex) {
+System.err.println(ex.getMessage());
+}
+}
+//End
+
+
+2. Membuat Laporan Remedial
+Proses sama dengan pembuatan form Laporan Nilai step by step dan
+codingannya, yang membedakan hanya Query saat Pencarian saja sebagai
+berikut :
+SELECT *FROM tb_siswa JOIN tb_nilai ON tb_siswa.nis = tb_nilai.nis WHERE
+mapel LIKE '%"+key+"%' and nilai <= 78
+
+
+
+//Guru.java
+
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+import javax.swing.JOptionPane;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import javax.swing.table.DefaultTableModel;
+import java.sql.SQLException;
+
+/**
+ *
+ * @author ACER
+ */
+public class Guru extends javax.swing.JFrame {
+
+    /**
+     * Creates new form Guru
+     */
+    public Guru() {
+        initComponents();
+    }
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">                          
+    private void initComponents() {
+
+        txtnama = new javax.swing.JTextField();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tblguru = new javax.swing.JTable();
+        btntambah = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        btnedit = new javax.swing.JButton();
+        jLabel2 = new javax.swing.JLabel();
+        btnHapus = new javax.swing.JButton();
+        txtnip = new javax.swing.JTextField();
+        btnkosong = new javax.swing.JButton();
+        jLabel3 = new javax.swing.JLabel();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        txtnama.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtnamaActionPerformed(evt);
+            }
+        });
+
+        tblguru.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null}
+            },
+            new String [] {
+                "NO", "NIP", "NAMA"
+            }
+        ));
+        tblguru.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblguruMouseClicked(evt);
+            }
+        });
+        jScrollPane1.setViewportView(tblguru);
+
+        btntambah.setText("Tambah");
+        btntambah.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btntambahActionPerformed(evt);
+            }
+        });
+
+        jLabel1.setText("DATA GURU");
+
+        btnedit.setText("Update");
+        btnedit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btneditActionPerformed(evt);
+            }
+        });
+
+        jLabel2.setText("NIP");
+
+        btnHapus.setText("Hapus");
+        btnHapus.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnHapusActionPerformed(evt);
+            }
+        });
+
+        btnkosong.setText("Kosongkan");
+        btnkosong.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnkosongActionPerformed(evt);
+            }
+        });
+
+        jLabel3.setText("NAMA");
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addComponent(jLabel3)
+                                .addGap(30, 30, 30)
+                                .addComponent(txtnama, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addComponent(jLabel2)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(txtnip, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(btnedit)
+                                .addGap(18, 18, 18)
+                                .addComponent(btnkosong))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(btntambah)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btnHapus))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(29, 29, 29)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 375, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(179, 179, 179)
+                        .addComponent(jLabel1)))
+                .addContainerGap(16, Short.MAX_VALUE))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel1)
+                .addGap(29, 29, 29)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txtnip, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2)
+                    .addComponent(btntambah)
+                    .addComponent(btnHapus))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel3)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(txtnama, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btnedit)
+                        .addComponent(btnkosong)))
+                .addGap(33, 33, 33)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(67, Short.MAX_VALUE))
+        );
+
+        pack();
+    }// </editor-fold>                        
+
+    private void txtnamaActionPerformed(java.awt.event.ActionEvent evt) {                                        
+        // TODO add your handling code here:
+    }                                       
+
+    private void tblguruMouseClicked(java.awt.event.MouseEvent evt) {                                     
+        // TODO add your handling code here:
+    }                                    
+
+    private void btntambahActionPerformed(java.awt.event.ActionEvent evt) {                                          
+        // TODO add your handling code here:
+        try{
+            String sql = "INSERT INTO tb_guru VALUES ('"+txtnip.getText()+"','"+txtnama.getText()+"')";
+            java.sql.Connection conn = (Connection)Config.configDB();
+            java.sql.PreparedStatement pst = conn.prepareStatement(sql);
+            pst.execute();
+            JOptionPane.showMessageDialog(null, "Penyimpanan Data Berhasil!");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        }
+        load_table();
+        kosong();
+    }                                         
+
+    private void btneditActionPerformed(java.awt.event.ActionEvent evt) {                                        
+        // TODO add your handling code here:
+        try{
+            String sql = "UPDATE tb_guru SET nama = '"+txtnama.getText()+"'WHERE nip = '"+txtnip.getText()+"'";
+            java.sql.Connection conn = (Connection)Config.configDB();
+            java.sql.PreparedStatement pst = conn.prepareStatement(sql);
+            pst.execute();
+            JOptionPane.showMessageDialog(null, "Data Berhasil Diedit");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Perubahan Data Gagal" + e.getMessage());
+        }
+        load_table();
+        kosong();
+    }                                       
+
+    private void btnHapusActionPerformed(java.awt.event.ActionEvent evt) {                                         
+        // TODO add your handling code here:
+        try{
+            String sql = "DELETE FROM tb_guru WHERE nip = '"+txtnip.getText()+"'";
+            java.sql.Connection conn = (Connection)Config.configDB();
+            java.sql.PreparedStatement pst = conn.prepareStatement(sql);
+            pst.execute();
+            JOptionPane.showMessageDialog(this, "Data Berhasil Dihapus");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        }
+        load_table();
+        kosong();
+    }                                        
+
+    private void btnkosongActionPerformed(java.awt.event.ActionEvent evt) {                                          
+        // TODO add your handling code here:
+        txtnip.setText(null);
+        txtnama.setText(null);
+    }                                         
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(Guru.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(Guru.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(Guru.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(Guru.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new Guru().setVisible(true);
+            }
+        });
+    }
+    
+    private void load_table(){
+        DefaultTableModel model = new DefaultTableModel();
+        tblguru.setModel(model);
+        model.addColumn("No");
+        model.addColumn("NIP");
+        model.addColumn("NAMA");
+        
+        try {
+            int no=1;
+            String sql = "SELECT * FROM tb_guru";
+            java.sql.Connection conn=(Connection)Config.configDB();
+            java.sql.Statement stm=conn.createStatement();
+            java.sql.ResultSet res=stm.executeQuery(sql);
+            while(res.next()){
+                model.addRow(new Object[]{no++,res.getString(1),res.getString(2)});
+            }
+            tblguru.setModel(model);
+        } catch (SQLException e){
+            
+        }
+    }
+
+    private void kosong(){
+        txtnip.setText(null);
+        txtnama.setText(null);
+    }
+
+    // Variables declaration - do not modify                     
+    private javax.swing.JButton btnHapus;
+    private javax.swing.JButton btnedit;
+    private javax.swing.JButton btnkosong;
+    private javax.swing.JButton btntambah;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTable tblguru;
+    private javax.swing.JTextField txtnama;
+    private javax.swing.JTextField txtnip;
+    // End of variables declaration                   
+}
+
+
+
+
+//Laporan nilai
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+import java.awt.*;
+import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+
+/**
+ *
+ * @author ACER
+ */
+public class LaporanNilai extends javax.swing.JFrame {
+    
+    DefaultTableModel tabModel, tabModell;
+ResultSet Rs = null, Rsl = null;
+
+private void tampilData(){
+        try{
+            Object[] judul_kolom = {"NIS", "NAMA", "MAPEL", "NILAI"};
+            tabModel=new DefaultTableModel(null,judul_kolom);
+            tblnilai.setModel(tabModel);
+            
+            Connection conn=(Connection)Config.configDB();
+            Statement stt=conn.createStatement();
+            tabModel.getDataVector().removeAllElements();
+            
+            Rs=stt.executeQuery("SELECT * FROM tb_siswa JOIN tb_nilai ON tb_siswa.nis = tb_nilai.nis");  
+            while(Rs.next()){
+                Object[] data={
+                    Rs.getString("nis"),
+                    Rs.getString("nama"),
+                    Rs.getString("mapel"),
+                    Rs.getString("nilai")         
+                };
+               tabModel.addRow(data);
+            }                
+        } catch (Exception ex) {
+        System.err.println(ex.getMessage());
+        }
+    }
+
+
+private void cariData(String key){
+        try{
+            Object[] judul_kolom = {"NIS", "NAMA", "MAPEL", "NILAI"};
+            tabModell=new DefaultTableModel(null,judul_kolom);
+            tblnilai.setModel(tabModell);
+            
+            Connection conn=(Connection)Config.configDB();
+            Statement stt=conn.createStatement();
+            tabModell.getDataVector().removeAllElements();
+            
+            Rsl=stt.executeQuery("SELECT * FROM tb_siswa JOIN tb_nilai ON tb_siswa.nis = tb_nilai.nis WHERE tb_nilai.nis LIKE '%"+key+"%'");  
+            while(Rs.next()){
+                Object[] data={
+                    Rsl.getString("nis"),
+                    Rsl.getString("nama"),
+                    Rsl.getString("mapel"),
+                    Rsl.getString("nilai")         
+                };
+               tabModell.addRow(data);
+            }                
+        } catch (Exception ex) {
+        System.err.println(ex.getMessage());
+        }
+    }
+
+    /**
+     * Creates new form LaporanNilai
+     */
+    public LaporanNilai() {
+        initComponents();
+    }
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">                          
+    private void initComponents() {
+
+        jLabel1 = new javax.swing.JLabel();
+        nama = new javax.swing.JLabel();
+        txtcari = new javax.swing.JTextField();
+        cari = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tblnilai = new javax.swing.JTable();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        jLabel1.setText("LAPORAN DATA NILAI SISWA");
+
+        nama.setText("NAMA");
+
+        txtcari.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtcariActionPerformed(evt);
+            }
+        });
+        txtcari.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txtcariKeyReleased(evt);
+            }
+        });
+
+        cari.setText("Cari");
+        cari.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cariActionPerformed(evt);
+            }
+        });
+
+        tblnilai.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "NIS", "NAMA", "MAPEL", "NILAI"
+            }
+        ));
+        tblnilai.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                tblnilaiKeyReleased(evt);
+            }
+        });
+        jScrollPane1.setViewportView(tblnilai);
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(26, 26, 26)
+                .addComponent(nama)
+                .addGap(18, 18, 18)
+                .addComponent(txtcari, javax.swing.GroupLayout.PREFERRED_SIZE, 169, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(cari)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(13, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addGap(114, 114, 114))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 375, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap())))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel1)
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(nama)
+                    .addComponent(txtcari, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(cari))
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        pack();
+    }// </editor-fold>                        
+
+    private void txtcariActionPerformed(java.awt.event.ActionEvent evt) {                                        
+        // TODO add your handling code here:
+    }                                       
+
+    private void txtcariKeyReleased(java.awt.event.KeyEvent evt) {                                    
+        // TODO add your handling code here:
+        String key=txtcari.getText();
+        System.out.println(key);  
+        
+        if(key!=""){
+            cariData(key);
+        }else{
+            tampilData();
+        }
+        
+    }                                   
+
+    private void tblnilaiKeyReleased(java.awt.event.KeyEvent evt) {                                     
+        // TODO add your handling code here:
+    }                                    
+
+    private void cariActionPerformed(java.awt.event.ActionEvent evt) {                                     
+        // TODO add your handling code here:
+    }                                    
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(LaporanNilai.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(LaporanNilai.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(LaporanNilai.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(LaporanNilai.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new LaporanNilai().setVisible(true);
+            }
+        });
+    }
+    
+    
+
+    // Variables declaration - do not modify                     
+    private javax.swing.JButton cari;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel nama;
+    private javax.swing.JTable tblnilai;
+    private javax.swing.JTextField txtcari;
+    // End of variables declaration                   
+}
